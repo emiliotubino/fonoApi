@@ -5,6 +5,9 @@ import Users from '../models/users';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_secreta';
 
+// rotas de autenticação
+// auth/...
+
 // Rota de login
 router.post('/login', async (req: Request, res: Response) => {
   try {

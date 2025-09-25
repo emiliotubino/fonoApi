@@ -21,7 +21,7 @@ import configRoutes from './routes/config.routes';
 // register routes
 app.use('/config', configRoutes);
 app.use('/auth', authRoutes);
-app.use('/user', userRoutes);
+app.use('/users', userRoutes);
 
 // porta
 const PORT = process.env.PORT || 8083;
