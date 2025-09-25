@@ -1,7 +1,9 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './database/connection';
+import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
 
 dotenv.config();
 const app = express();
@@ -18,6 +20,8 @@ import configRoutes from './routes/config.routes';
 
 // register routes
 app.use('/config', configRoutes);
+app.use('/auth', authRoutes);
+app.use('/users', userRoutes);
 
 // porta
 const PORT = process.env.PORT || 8083;
