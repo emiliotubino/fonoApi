@@ -56,7 +56,7 @@ router.post("/signup", async (req: Request, res: Response) => {
     // gerar token
     const token = jwt.sign({ id: newUser._id }, JWT_SECRET, { expiresIn: '30d' });
 
-    res.status(201).json({ token, user: { id: newUser._id, name: newUser.name, email: newUser.email } });
+    res.status(201).json({ user: { id: newUser._id, name: newUser.name, email: newUser.email, token: token } });
   } catch (err) {
     res.status(500).json({ message: "Erro ao criar usuário", error: err });
   }
