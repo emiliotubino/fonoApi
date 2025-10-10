@@ -6,6 +6,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **fonoApi** is a TypeScript-based Node.js/Express REST API for the fonoApp application. It provides authentication and user management functionality with JWT-based security and MongoDB data persistence.
 
+## Related Projects
+
+### fonoApp (Mobile Client)
+Located at `../fonoApp`, this is the React Native/Expo mobile application that consumes this API.
+
+**Technology Stack:**
+- React Native 0.81.4 with Expo ~54.0.12
+- TypeScript 5.9.2
+- Redux Toolkit for state management
+- Redux Persist with AsyncStorage for local data persistence
+- React Navigation for routing
+- Styled Components for styling
+
+**API Integration:**
+- Base API URL: `http://localhost:8083` (configured in `src/store/api/baseApi.ts`)
+- Uses RTK Query for API calls
+- Authentication state managed via Redux with token persistence
+- Token stored in user slice and used for protected routes
+
+**Key Features:**
+- Conditional navigation based on authentication token presence
+- Automatic Redux state persistence (user slice includes token)
+- Path aliases configured (`@/*` maps to `src/*`)
+- Requires Node.js v18
+
+**Authentication Flow:**
+1. User logs in/signs up via fonoApp UI
+2. App calls `/auth/login` or `/auth/signup` endpoints on this API
+3. API returns JWT token and user data
+4. fonoApp stores token in Redux (persisted to AsyncStorage)
+5. Subsequent requests include token in Authorization header
+6. Protected endpoints like `/users/me` validate token via authMiddleware
+
+**Important:** The fonoApp expects JWT tokens in the response body with user data. Any changes to authentication endpoints should ensure compatibility with the Redux user slice structure.
+
 ## Development Commands
 
 ### Running the Application
