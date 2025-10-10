@@ -31,8 +31,7 @@ router.post('/signup', async (req: Request, res: Response) => {
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
 
     res.status(201).json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email }
+      user: { id: user._id, name: user.name, email: user.email, token: token }
     });
   } catch (error) {
     res.status(500).json({ message: 'Erro ao criar usuário', error });
@@ -55,7 +54,7 @@ router.post('/login', async (req: Request, res: Response) => {
     // gerar token
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.json({ user: { id: user._id, name: user.name, email: user.email, token: token } });
   } catch (error) {
     res.status(500).json({ message: 'Erro no login', error });
   }
