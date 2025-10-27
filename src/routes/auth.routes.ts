@@ -25,7 +25,7 @@ router.post('/signup', async (req: Request, res: Response) => {
     }
 
     // criar novo usuário (senha será hasheada automaticamente pelo pre-save hook)
-    const user = new Users({ name, email, password });
+    const user = new Users({ firstName, lastName, email, password });
     await user.save();
 
     // gerar token
@@ -56,7 +56,7 @@ router.post('/login', async (req: Request, res: Response) => {
     // gerar token
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({ user: { id: user._id, name: user.name, email: user.email, token: token } });
+    res.json({ user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, token: token } });
   } catch (error) {
     res.status(500).json({ message: 'Erro no login', error });
   }
