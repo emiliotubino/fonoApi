@@ -11,9 +11,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'chave_secreta';
 // Rota de signup
 router.post('/signup', async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { firstName, lastName, email, password } = req.body;
+    console.log(firstName, lastName, email, password);
     // validar campos obrigatórios
-    if (!name || !email || !password) {
+    if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: 'Nome, email e senha são obrigatórios' });
     }
 
@@ -31,9 +32,10 @@ router.post('/signup', async (req: Request, res: Response) => {
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
 
     res.status(201).json({
-      user: { id: user._id, name: user.name, email: user.email, token: token }
+      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, token: token }
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ message: 'Erro ao criar usuário', error });
   }
 });
