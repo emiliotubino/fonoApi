@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import Users from '../models/users';
+import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'chave_secreta';
@@ -59,6 +60,34 @@ router.post('/login', async (req: Request, res: Response) => {
     res.json({ user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, token: token } });
   } catch (error) {
     res.status(500).json({ message: 'Erro no login', error });
+  }
+});
+
+// Rota para validar token (apenas verifica se o token é válido)
+router.get('/validate', authMiddleware, (req: AuthRequest, res: Response) => {
+  // Se chegou aqui, o token é válido (authMiddleware já validou)
+  res.json({ valid: true, userId: req.user?.id });
+});
+
+// Rota para validar token e retornar dados do usuário autenticado
+router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await Users.findById(req.user?.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado' });
+    }
+
+    res.json({
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar dados do usuário', error });
   }
 });
 
