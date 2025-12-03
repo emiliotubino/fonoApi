@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { connectDB } from './database/connection';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
+import exerciseCategoriesRoutes from './routes/exerciseCategories.routes';
+import exercisesRoutes from './routes/exercises.routes';
 
 dotenv.config();
 const app = express();
@@ -22,6 +24,8 @@ import configRoutes from './routes/config.routes';
 app.use('/config', configRoutes);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
+app.use('/exercise-categories', exerciseCategoriesRoutes);
+app.use('/exercises', exercisesRoutes);
 
 // porta
 const PORT = process.env.PORT || 8083;
