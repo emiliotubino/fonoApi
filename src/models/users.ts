@@ -6,7 +6,9 @@ export interface IUser extends Document {
   lastName: string;
   email: string;
   password: string;
+  role: 'superadmin' | 'patient';
   createdAt: Date;
+  updatedAt: Date;
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -16,6 +18,12 @@ const UserSchema: Schema = new Schema(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    role: {
+      type: String,
+      enum: ['superadmin', 'patient'],
+      default: 'patient',
+      required: true
+    },
   },
   { timestamps: true }
 );

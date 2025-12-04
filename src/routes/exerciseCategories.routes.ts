@@ -1,11 +1,12 @@
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
+import { requireRole } from '../middleware/roleMiddleware';
 import { Router, Request, Response } from 'express';
 import ExerciseCategories from '../models/exerciseCategories';
 
 const router = Router();
 
 // GET /exercise-categories - List all categories
-router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
     const categories = await ExerciseCategories.find();
     res.json(categories);
@@ -15,7 +16,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /exercise-categories/:id - Get single category by ID
-router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/:id', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
     const category = await ExerciseCategories.findById(req.params.id);
     if (!category) {
@@ -27,8 +28,8 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /exercise-categories - Create new category
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+// POST /exercise-categories - Create new category (superadmin only)
+router.post('/', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const { name } = req.body;
 
@@ -48,8 +49,8 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// PUT /exercise-categories/:id - Update category
-router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// PUT /exercise-categories/:id - Update category (superadmin only)
+router.put('/:id', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const { name } = req.body;
 
@@ -76,8 +77,8 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// DELETE /exercise-categories/:id - Delete category
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// DELETE /exercise-categories/:id - Delete category (superadmin only)
+router.delete('/:id', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const deletedCategory = await ExerciseCategories.findByIdAndDelete(req.params.id);
 
