@@ -7,6 +7,19 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'superadmin' | 'patient';
+  birth?: Date;
+  phone?: string;
+  emergencyPhone?: string;
+  cpf?: string;
+  homeAddress?: {
+    city?: string;
+    state?: string;
+    country?: string;
+    street?: string;
+    neighborhood?: string;
+    complement?: string;
+    number?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   comparePassword(password: string): Promise<boolean>;
@@ -23,6 +36,22 @@ const UserSchema: Schema = new Schema(
       enum: ['superadmin', 'patient'],
       default: 'patient',
       required: true
+    },
+    birth: { type: Date, required: false },
+    phone: { type: String, required: false },
+    emergencyPhone: { type: String, required: false },
+    cpf: { type: String, required: false },
+    homeAddress: {
+      type: {
+        city: { type: String, required: false },
+        state: { type: String, required: false },
+        country: { type: String, required: false },
+        street: { type: String, required: false },
+        neighborhood: { type: String, required: false },
+        complement: { type: String, required: false },
+        number: { type: String, required: false },
+      },
+      required: false
     },
   },
   { timestamps: true }
