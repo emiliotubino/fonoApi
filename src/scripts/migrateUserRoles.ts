@@ -38,11 +38,15 @@ const migrateRoles = async () => {
       const firstUser = await User.findOne().sort({ createdAt: 1 });
 
       if (firstUser) {
-        firstUser.role = 'superadmin';
-        await firstUser.save();
-        console.log(`👑 Primeiro usuário promovido para superadmin:`);
-        console.log(`   Email: ${firstUser.email}`);
-        console.log(`   Nome: ${firstUser.firstName} ${firstUser.lastName}\n`);
+        try {
+          firstUser.role = 'superadmin';
+          await firstUser.save();
+          console.log(`👑 Primeiro usuário promovido para superadmin:`);
+          console.log(`   Email: ${firstUser.email}`);
+          console.log(`   Nome: ${firstUser.firstName} ${firstUser.lastName}\n`);
+        } catch (error) {
+          console.error('❌ Erro ao promover usuário para superadmin:', error);
+        }
       } else {
         console.log('⚠️  Nenhum usuário encontrado no banco de dados.\n');
       }
