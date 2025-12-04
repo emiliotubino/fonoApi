@@ -12,8 +12,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'chave_secreta';
 // Rota de signup
 router.post('/signup', async (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
-    console.log(firstName, lastName, email, password);
+    const { firstName, lastName, email, password, birth, phone, emergencyPhone, cpf, homeAddress } = req.body;
+    console.log(firstName, lastName, email, password, birth, phone, emergencyPhone, cpf, homeAddress);
     // validar campos obrigatórios
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: 'Nome, email e senha são obrigatórios' });
@@ -26,7 +26,7 @@ router.post('/signup', async (req: Request, res: Response) => {
     }
 
     // criar novo usuário (senha será hasheada automaticamente pelo pre-save hook)
-    const user = new Users({ firstName, lastName, email, password });
+    const user = new Users({ firstName, lastName, email, password, birth, phone, emergencyPhone, cpf, homeAddress });
     await user.save();
 
     // gerar token com role
@@ -34,7 +34,18 @@ router.post('/signup', async (req: Request, res: Response) => {
 
     res.status(201).json({
       token,
-      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role }
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        birth: user.birth,
+        phone: user.phone,
+        emergencyPhone: user.emergencyPhone,
+        cpf: user.cpf,
+        homeAddress: user.homeAddress
+      }
     });
   } catch (error) {
     console.log(error);
@@ -58,7 +69,21 @@ router.post('/login', async (req: Request, res: Response) => {
     // gerar token com role
     const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({ token, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role } });
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        birth: user.birth,
+        phone: user.phone,
+        emergencyPhone: user.emergencyPhone,
+        cpf: user.cpf,
+        homeAddress: user.homeAddress
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Erro no login', error });
   }
@@ -85,7 +110,12 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        role: user.role
+        role: user.role,
+        birth: user.birth,
+        phone: user.phone,
+        emergencyPhone: user.emergencyPhone,
+        cpf: user.cpf,
+        homeAddress: user.homeAddress
       }
     });
   } catch (error) {
