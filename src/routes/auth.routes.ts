@@ -29,11 +29,12 @@ router.post('/signup', async (req: Request, res: Response) => {
     const user = new Users({ firstName, lastName, email, password });
     await user.save();
 
-    // gerar token
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
+    // gerar token com role
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
     res.status(201).json({
-      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, token: token }
+      token,
+      user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role }
     });
   } catch (error) {
     console.log(error);
@@ -54,10 +55,10 @@ router.post('/login', async (req: Request, res: Response) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Senha inválida' });
 
-    // gerar token
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '30d' });
+    // gerar token com role
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '30d' });
 
-    res.json({ user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, token: token } });
+    res.json({ token, user: { id: user._id, firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role } });
   } catch (error) {
     res.status(500).json({ message: 'Erro no login', error });
   }
@@ -83,7 +84,8 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
         id: user._id,
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {

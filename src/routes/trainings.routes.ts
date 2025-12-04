@@ -1,14 +1,21 @@
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
+import { requireRole } from '../middleware/roleMiddleware';
 import { Router, Request, Response } from 'express';
 import Trainings from '../models/trainings';
 import Exercises from '../models/exercises';
 
 const router = Router();
 
-// GET /trainings - List all trainings with populated exercises and categories
-router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+// GET /trainings - List trainings (superadmin sees all, patient sees only theirs)
+router.get('/', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
-    const trainings = await Trainings.find()
+    // Patients only see their own trainings, superadmins see all
+    let query = {};
+    if (req.user?.role === 'patient') {
+      query = { userId: req.user.id };
+    }
+
+    const trainings = await Trainings.find(query)
       .populate('exercises')
       .populate('categories');
     res.json(trainings);
@@ -17,8 +24,8 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// GET /trainings/:id - Get single training by ID with populated data
-router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// GET /trainings/:id - Get single training (superadmin sees any, patient sees only theirs)
+router.get('/:id', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
     const training = await Trainings.findById(req.params.id)
       .populate('exercises')
@@ -28,14 +35,19 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'Treinamento não encontrado' });
     }
 
+    // Patients can only see their own trainings
+    if (req.user?.role === 'patient' && training.userId?.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Acesso negado. Você não pode acessar este treinamento.' });
+    }
+
     res.json(training);
   } catch (error) {
     res.status(500).json({ message: 'Erro ao buscar treinamento', error });
   }
 });
 
-// POST /trainings - Create new training
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+// POST /trainings - Create new training (superadmin only)
+router.post('/', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const { name, exercises } = req.body;
 
@@ -74,8 +86,8 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// PUT /trainings/:id - Update training
-router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// PUT /trainings/:id - Update training (superadmin only)
+router.put('/:id', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const { name, exercises } = req.body;
 
@@ -126,8 +138,8 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// DELETE /trainings/:id - Delete training
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// DELETE /trainings/:id - Delete training (superadmin only)
+router.delete('/:id', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const deletedTraining = await Trainings.findByIdAndDelete(req.params.id);
 

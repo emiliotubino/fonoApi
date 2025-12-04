@@ -3,6 +3,7 @@ import Exercise from './exercises';
 
 export interface ITraining extends Document {
   name: string;
+  userId?: mongoose.Types.ObjectId;
   exercises: mongoose.Types.ObjectId[];
   categories: mongoose.Types.ObjectId[];
   createdAt: Date;
@@ -12,6 +13,11 @@ export interface ITraining extends Document {
 const TrainingSchema: Schema = new Schema(
   {
     name: { type: String, required: true },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: false
+    },
     exercises: [{
       type: Schema.Types.ObjectId,
       ref: 'Exercise'

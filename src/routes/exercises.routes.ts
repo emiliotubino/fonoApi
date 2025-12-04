@@ -1,4 +1,5 @@
 import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
+import { requireRole } from '../middleware/roleMiddleware';
 import { Router, Request, Response } from 'express';
 import Exercises, { ExerciseTypes } from '../models/exercises';
 import ExerciseCategories from '../models/exerciseCategories';
@@ -6,7 +7,7 @@ import ExerciseCategories from '../models/exerciseCategories';
 const router = Router();
 
 // GET /exercises/types - Get list of exercise types enum
-router.get('/types', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/types', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
     const types = Object.values(ExerciseTypes);
     res.json(types);
@@ -16,7 +17,7 @@ router.get('/types', authMiddleware, async (req: AuthRequest, res: Response) => 
 });
 
 // GET /exercises - List all exercises with populated categories
-router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
     const exercises = await Exercises.find().populate('categories');
     res.json(exercises);
@@ -26,7 +27,7 @@ router.get('/', authMiddleware, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /exercises/:id - Get single exercise by ID with populated categories
-router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/:id', authMiddleware, requireRole(['superadmin', 'patient']), async (req: AuthRequest, res: Response) => {
   try {
     const exercise = await Exercises.findById(req.params.id).populate('categories');
     if (!exercise) {
@@ -38,8 +39,8 @@ router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /exercises - Create new exercise
-router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
+// POST /exercises - Create new exercise (superadmin only)
+router.post('/', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const { name, type, link, description, categories } = req.body;
 
@@ -80,8 +81,8 @@ router.post('/', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// PUT /exercises/:id - Update exercise
-router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// PUT /exercises/:id - Update exercise (superadmin only)
+router.put('/:id', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const { name, type, link, description, categories } = req.body;
 
@@ -126,8 +127,8 @@ router.put('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// DELETE /exercises/:id - Delete exercise
-router.delete('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
+// DELETE /exercises/:id - Delete exercise (superadmin only)
+router.delete('/:id', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
     const deletedExercise = await Exercises.findByIdAndDelete(req.params.id);
 
