@@ -16,7 +16,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   if (!token) return res.status(401).json({ message: 'Acesso negado, token não fornecido' });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET) as { id: string; role: 'superadmin' | 'patient' };
     req.user = decoded;
     next();
   } catch (error) {
