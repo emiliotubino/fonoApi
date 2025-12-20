@@ -10,6 +10,7 @@ import exercisesRoutes from './routes/exercises.routes';
 import trainingsRoutes from './routes/trainings.routes';
 import anamnesisTemplateRoutes from './routes/anamnesisTemplate.routes';
 import patientTrainingsRoutes from './routes/patientTrainings.routes';
+import patientAnamnesisRoutes from './routes/patientAnamnesis.routes';
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,7 @@ app.use('/exercises', exercisesRoutes);
 app.use('/trainings', trainingsRoutes);
 app.use('/anamnesis-templates', anamnesisTemplateRoutes);
 app.use('/', patientTrainingsRoutes);
+app.use('/', patientAnamnesisRoutes);
 
 // porta
 const PORT = process.env.PORT || 8083;
