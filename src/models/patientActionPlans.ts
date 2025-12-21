@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import moment from 'moment';
 
 // Enum for action plan status
 export enum ActionPlanStatus {
@@ -67,20 +68,25 @@ const PatientActionPlanSchema: Schema = new Schema(
 // Pre-save hook to auto-populate trainings array when status becomes 'completed'
 PatientActionPlanSchema.pre<IPatientActionPlan>('save', async function(next) {
   // Only run this logic if status is being modified to 'completed'
-  if (this.isModified('status') && this.status === ActionPlanStatus.COMPLETED) {
+  if (this.status === ActionPlanStatus.COMPLETED) {
     try {
       // Import PatientTraining model
       const PatientTraining = mongoose.model('PatientTraining');
 
       // Query completed trainings for this patient within date range
+      const startOfDay = moment(this.startDate).startOf('day').toDate();
+      const endOfDay = moment(this.endDate).endOf('day').toDate();
+
       const completedTrainings = await PatientTraining.find({
         patientId: this.patientId,
         status: 'completed',
         completedDate: {
-          $gte: this.startDate,
-          $lte: this.endDate
+          $gte: startOfDay,
+          $lte: endOfDay
         }
       }).select('_id');
+
+      console.log(completedTrainings, this.startDate, this.endDate)
 
       // Extract IDs and populate the trainings array
       this.trainings = completedTrainings.map(training => training._id);

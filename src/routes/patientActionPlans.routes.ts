@@ -39,7 +39,15 @@ router.get('/:patientId/patient-action-plans', authMiddleware, requireRole(['sup
 
     const patientActionPlans = await PatientActionPlan.find(query)
       .populate('patientId', '-password')
-      .populate('trainings')
+      .populate({
+        path: 'trainings',
+        populate: {
+          path: 'trainingId',
+          populate: {
+            path: 'categories'
+          }
+        }
+      })
       .sort({ startDate: -1 });
 
     res.json(patientActionPlans);
@@ -64,7 +72,15 @@ router.get('/:patientId/patient-action-plans/:id', authMiddleware, requireRole([
 
     const patientActionPlan = await PatientActionPlan.findOne({ _id: id, patientId })
       .populate('patientId', '-password')
-      .populate('trainings');
+      .populate({
+        path: 'trainings',
+        populate: {
+          path: 'trainingId',
+          populate: {
+            path: 'categories'
+          }
+        }
+      });
 
     if (!patientActionPlan) {
       return res.status(404).json({ message: 'Plano de ação não encontrado' });
@@ -123,7 +139,15 @@ router.post('/:patientId/patient-action-plans', authMiddleware, requireRole(['su
     // Populate and return
     const populatedActionPlan = await PatientActionPlan.findById(patientActionPlan._id)
       .populate('patientId', '-password')
-      .populate('trainings');
+      .populate({
+        path: 'trainings',
+        populate: {
+          path: 'trainingId',
+          populate: {
+            path: 'categories'
+          }
+        }
+      });
 
     res.status(201).json(populatedActionPlan);
   } catch (error) {
@@ -205,7 +229,15 @@ router.put('/:patientId/patient-action-plans/:id', authMiddleware, requireRole([
     // Return populated document
     const updatedPatientActionPlan = await PatientActionPlan.findById(patientActionPlan._id)
       .populate('patientId', '-password')
-      .populate('trainings');
+      .populate({
+        path: 'trainings',
+        populate: {
+          path: 'trainingId',
+          populate: {
+            path: 'categories'
+          }
+        }
+      });
 
     res.json(updatedPatientActionPlan);
   } catch (error) {
