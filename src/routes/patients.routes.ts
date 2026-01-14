@@ -2,6 +2,7 @@ import { authMiddleware, AuthRequest } from '../middleware/authMiddleware';
 import { requireRole } from '../middleware/roleMiddleware';
 import { Router, Response } from 'express';
 import User from '../models/users';
+import { generateRandomPassword } from '../utils/generatePassword';
 
 const router = Router();
 
@@ -38,13 +39,20 @@ router.get('/:id', authMiddleware, requireRole(['superadmin']), async (req: Auth
 // POST /patients - Create new patient (superadmin only)
 router.post('/', authMiddleware, requireRole(['superadmin']), async (req: AuthRequest, res: Response) => {
   try {
-    const { firstName, lastName, email, password, birth, phone, emergencyPhone, cpf, homeAddress } = req.body;
+    let { firstName, lastName, email, password, birth, phone, emergencyPhone, cpf, homeAddress } = req.body;
 
-    // Validar campos obrigatórios
-    if (!firstName || !lastName || !email || !password) {
+    // Validar campos obrigatórios (password não é mais obrigatório)
+    if (!firstName || !lastName || !email) {
       return res.status(400).json({
-        message: 'Campos obrigatórios: firstName, lastName, email, password'
+        message: 'Campos obrigatórios: firstName, lastName, email'
       });
+    }
+
+    // Gerar senha aleatória se não foi fornecida
+    let generatedPassword: string | undefined = undefined;
+    if (!password) {
+      password = generateRandomPassword();
+      generatedPassword = password;
     }
 
     // Criar patient com role forçado
@@ -63,8 +71,15 @@ router.post('/', authMiddleware, requireRole(['superadmin']), async (req: AuthRe
 
     await newPatient.save();
 
-    // Retornar sem password
-    const patientResponse = await User.findById(newPatient._id).select('-password');
+    // Retornar sem password do banco, mas com senha gerada se aplicável
+    const patientResponse: any = await User.findById(newPatient._id).select('-password');
+
+    // Incluir senha gerada na resposta se foi criada automaticamente
+    if (generatedPassword) {
+      const responseWithPassword = patientResponse.toObject();
+      responseWithPassword.generatedPassword = generatedPassword;
+      return res.status(201).json(responseWithPassword);
+    }
 
     res.status(201).json(patientResponse);
   } catch (error: any) {
