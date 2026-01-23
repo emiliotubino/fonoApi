@@ -1,4 +1,4 @@
-# RUN http://localhost:8083/ prod
+# RUN http://localhost:8083/
 npm run dev
 
 # start tunel api
